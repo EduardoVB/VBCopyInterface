@@ -1123,10 +1123,20 @@ Private Sub GenerateCtlCode()
             Next
             
             iAttrPut = False
-            If iMem.HasLet Then
-                AddLine "Public Property Let " & iMem.Name & "(" & iParams & IIf(iParams <> "", ", ", "") & "RHS As " & IIf(iMem.ReturnTypeLong And (mEnumsTreatment = riUseLongs), "Long", IIf(iMem.ReturnTypeObject And (Not mAsObjectUnknownClasses) Or (Not iMem.ReturnTypeObject), iMem.ReturnTypeName, iMem.ReturnTypeName2)) & ")"
+            If iMem.HasGet Then
+                AddLine "Public Property Get " & iMem.Name & "(" & iParams & ") As " & IIf(iMem.ReturnTypeLong And (mEnumsTreatment = riUseLongs), "Long", IIf(iMem.ReturnTypeObject And (Not mAsObjectUnknownClasses) Or (Not iMem.ReturnTypeObject), iMem.ReturnTypeName, iMem.ReturnTypeName2))
                 PutAttr iMem
                 iAttrPut = True
+                AddLine "    " & IIf(iMem.HasSet Or iMem.ReturnTypeObject, "Set ", "") & iMem.Name & " = m" & iMem.Name & IIf(iParams2 <> "", "(" & iParams2 & ")", "")
+                AddLine "End Property"
+                AddLine ""
+            End If
+            If iMem.HasLet Then
+                AddLine "Public Property Let " & iMem.Name & "(" & iParams & IIf(iParams <> "", ", ", "") & "RHS As " & IIf(iMem.ReturnTypeLong And (mEnumsTreatment = riUseLongs), "Long", IIf(iMem.ReturnTypeObject And (Not mAsObjectUnknownClasses) Or (Not iMem.ReturnTypeObject), iMem.ReturnTypeName, iMem.ReturnTypeName2)) & ")"
+                If Not iAttrPut Then
+                    PutAttr iMem
+                    iAttrPut = True
+                End If
                 If iMem.ReturnTypeObject Then
                     AddLine "    Set m" & iMem.Name & IIf(iParams2 <> "", "(" & iParams2 & ")", "") & " = " & "RHS"
                 Else
@@ -1145,16 +1155,6 @@ Private Sub GenerateCtlCode()
                     iAttrPut = True
                 End If
                 AddLine "    Set m" & iMem.Name & IIf(iParams2 <> "", "(" & iParams2 & ")", "") & " = " & "RHS"
-                AddLine "End Property"
-                AddLine ""
-            End If
-            If iMem.HasGet Then
-                AddLine "Public Property Get " & iMem.Name & "(" & iParams & ") As " & IIf(iMem.ReturnTypeLong And (mEnumsTreatment = riUseLongs), "Long", IIf(iMem.ReturnTypeObject And (Not mAsObjectUnknownClasses) Or (Not iMem.ReturnTypeObject), iMem.ReturnTypeName, iMem.ReturnTypeName2))
-                If Not iAttrPut Then
-                    PutAttr iMem
-                    iAttrPut = True
-                End If
-                AddLine "    " & IIf(iMem.HasSet Or iMem.ReturnTypeObject, "Set ", "") & iMem.Name & " = m" & iMem.Name & IIf(iParams2 <> "", "(" & iParams2 & ")", "")
                 AddLine "End Property"
                 AddLine ""
             End If
